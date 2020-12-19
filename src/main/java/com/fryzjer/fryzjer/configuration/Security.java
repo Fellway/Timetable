@@ -11,15 +11,22 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @EnableWebSecurity
 public class Security extends WebSecurityConfigurerAdapter implements WebMvcConfigurer {
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-       http.authorizeRequests().antMatchers("/*").hasAnyRole("USER").and().formLogin();
+       http.authorizeRequests()
+               .antMatchers("/*").hasAnyRole("USER")
+               .and()
+               .formLogin()
+               .and().csrf().disable().cors();
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
-                .withUser("admin").roles("USER").password("{noop}password");
+                .withUser("admin").roles("USER").password("{noop}password")
+                .and()
+                .withUser("test").roles("USER").password("{noop}password");
     }
 
     @Override

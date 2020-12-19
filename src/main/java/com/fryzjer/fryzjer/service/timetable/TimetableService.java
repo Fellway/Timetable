@@ -11,8 +11,7 @@ public class TimetableService implements ITimetableService {
     private DatabaseMock databaseMock = DatabaseMock.getInstance();
 
     @Override
-    public void reserve(final Integer day, final Integer hour, final String username) {
-        Reservation reservation = new Reservation(day, hour, username);
+    public void reserve(final Reservation reservation) {
         if(databaseMock.getTimetable().getReservations().contains(reservation)) {
             databaseMock.cancelReservation(reservation);
         } else {

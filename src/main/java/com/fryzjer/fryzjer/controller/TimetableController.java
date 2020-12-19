@@ -2,24 +2,31 @@ package com.fryzjer.fryzjer.controller;
 
 import com.fryzjer.fryzjer.dto.Reservation;
 import com.fryzjer.fryzjer.dto.Timetable;
+import com.fryzjer.fryzjer.dto.validator.ReservationValidator;
 import com.fryzjer.fryzjer.service.timetable.ITimetableService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-public class TimetableController {
+import static com.fryzjer.fryzjer.controller.mapper.TimetableResponseMapper.mapToTimetableResponse;
 
+@RestController
+public class TimetableController extends ExceptionHandlerController {
+
+    private ReservationValidator reservationValidator;
     private ITimetableService timetableService;
+    private SimpMessageSendingOperations messagingTemplate;
 
     @Autowired
-    public TimetableController(final ITimetableService timetableService) {
+    public TimetableController(ReservationValidator reservationValidator, final ITimetableService timetableService, final SimpMessageSendingOperations messagingTemplate) {
+        this.reservationValidator = reservationValidator;
         this.timetableService = timetableService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @GetMapping("/timetable")
@@ -27,14 +34,14 @@ public class TimetableController {
         return timetableService.getTimetable();
     }
 
-    @MessageMapping("/reserve")
-    @SendTo("/topic/timetable")
-    public Timetable reserve(final Reservation reservation) {
+    @PostMapping("/reserve")
+    public void reserve(Reservation reservation) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            String currentUserName = authentication.getName();
-            timetableService.reserve(reservation.getDay(), reservation.getHour(), currentUserName);
+            reservation.setUsername(authentication.getName());
+            reservationValidator.validateReservation(reservation);
+            timetableService.reserve(reservation);
         }
-        return timetableService.getTimetable();
+        messagingTemplate.convertAndSend("/topic/timetable", mapToTimetableResponse(timetableService.getTimetable()));
     }
 }

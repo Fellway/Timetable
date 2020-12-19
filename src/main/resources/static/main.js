@@ -1,4 +1,6 @@
 var client = null;
+var stompClient = null;
+
 var hours = Array.prototype.slice.call(document.getElementsByClassName('hour'));
 for (var i = 0; i < hours.length; i++) {
     hours[i].addEventListener("click", reserve.bind(null, Math.floor(i / 8), i % 8));
@@ -23,7 +25,6 @@ function printTimetable(timetable) {
     for (var i = 0; i < reservations.length; i++) {
         var day = reservations[i].day;
         var hour = reservations[i].hour;
-
         setReserved(day, hour);
     }
 }
@@ -43,12 +44,20 @@ function clearCalendar() {
 }
 
 function reserve(day, hour) {
-    if(confirm("Potwierdź")){
-        client.send("/app/reserve", {}, JSON.stringify({
+    $.ajax({
+        url: '/reserve',
+        type: 'POST',
+        data: {
             "day": day,
             "hour": hour
-        }));
-    }
+        },
+        success: function (data) {
+            alert("Twoja wizyta została zarezerwowana");
+        },
+        error: function (xhr, status, error) {
+            alert(JSON.parse(xhr.responseText).message);
+        }
+    })
 }
 
 function loadTimetable() {
