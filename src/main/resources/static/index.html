@@ -3,81 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <title>Terminarz</title>
+    <link rel="stylesheet" href="reset.css">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300&display=swap" rel="stylesheet">
 </head>
 <body onload="connect()">
-<div id="container">
-    <div id="timetable">
-        <h1>Terminarz</h1>
-        <div id="week">
-            <div id="monday" class="day">
-                <h3 class="day-description">Poniedziałek</h3>
-                <div class="hours">
-                    <div class="hour">10-11</div>
-                    <div class="hour">11-12</div>
-                    <div class="hour">12-13</div>
-                    <div class="hour">13-14</div>
-                    <div class="hour">14-15</div>
-                    <div class="hour">15-16</div>
-                    <div class="hour">16-17</div>
-                    <div class="hour">17-18</div>
-                </div>
-            </div>
-            <div id="tuesday" class="day">
-                <h3 class="day-description">Wtorek</h3>
-                <div class="hours">
-                    <div class="hour">10-11</div>
-                    <div class="hour">11-12</div>
-                    <div class="hour">12-13</div>
-                    <div class="hour">13-14</div>
-                    <div class="hour">14-15</div>
-                    <div class="hour">15-16</div>
-                    <div class="hour">16-17</div>
-                    <div class="hour">17-18</div>
-                </div>
-            </div>
-            <div id="wednesday" class="day">
-                <h3 class="day-description">Środa</h3>
-                <div class="hours">
-                    <div class="hour">10-11</div>
-                    <div class="hour">11-12</div>
-                    <div class="hour">12-13</div>
-                    <div class="hour">13-14</div>
-                    <div class="hour">14-15</div>
-                    <div class="hour">15-16</div>
-                    <div class="hour">16-17</div>
-                    <div class="hour">17-18</div>
-                </div>
-            </div>
-            <div id="thursday" class="day">
-                <h3 class="day-description">Czwartek</h3>
-                <div class="hours">
-                    <div class="hour">10-11</div>
-                    <div class="hour">11-12</div>
-                    <div class="hour">12-13</div>
-                    <div class="hour">13-14</div>
-                    <div class="hour">14-15</div>
-                    <div class="hour">15-16</div>
-                    <div class="hour">16-17</div>
-                    <div class="hour">17-18</div>
-                </div>
-            </div>
-            <div id="friday" class="day">
-                <h3 class="day-description">Piątek</h3>
-                <div class="hours">
-                    <div class="hour">10-11</div>
-                    <div class="hour">11-12</div>
-                    <div class="hour">12-13</div>
-                    <div class="hour">13-14</div>
-                    <div class="hour">14-15</div>
-                    <div class="hour">15-16</div>
-                    <div class="hour">16-17</div>
-                    <div class="hour">17-18</div>
-                </div>
+<div id="confirm-modal">
+    <div class="box">
+        <div class="info-container">
+            <div id="confirm-message"></div>
+            <div id="btnYes" class="button green">Potwierdź</div>
+            <div id="btnNo" class="button red">Anuluj</div>
+        </div>
+    </div>
+</div>
+<div id="modal">
+    <div class="box">
+        <div id="bar">
+            <div class="close" onclick="closeModal()">
+                ✖
             </div>
         </div>
+        <div class="info-container">
+            <div id="message"></div>
+            <div class="button" onclick="closeModal()">Ok</div>
+        </div>
+    </div>
+</div>
+<div id="container">
+    <div class="table-wrapper">
+        <h1>Terminarz</h1>
+        <table id="timetable">
+            <tr>
+                <th>Godziny</th>
+                <th>Poniedziałek</th>
+                <th>Wtorek</th>
+                <th>Środa</th>
+                <th>Czwartek</th>
+                <th>Piątek</th>
+            </tr>
+            <tr>
+                <td>
+                    10:00
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    11:00
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    12:00
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    13:00
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    14:00
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    15:00
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    16:00
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    17:00
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
     </div>
 </div>
 

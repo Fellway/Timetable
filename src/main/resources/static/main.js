@@ -1,12 +1,4 @@
 var client = null;
-var stompClient = null;
-
-var hours = Array.prototype.slice.call(document.getElementsByClassName('hour'));
-for (var i = 0; i < hours.length; i++) {
-    hours[i].addEventListener("click", reserve.bind(null, Math.floor(i / 8), i % 8));
-    hours[i].setAttribute("day", Math.floor(i / 8));
-    hours[i].setAttribute("hour", i % 8);
-}
 
 function connect() {
     loadTimetable();
@@ -20,50 +12,106 @@ function connect() {
 }
 
 function printTimetable(timetable) {
-    var reservations = timetable.reservations;
+    let reservations = timetable.reservations;
     clearCalendar();
-    for (var i = 0; i < reservations.length; i++) {
-        var day = reservations[i].day;
-        var hour = reservations[i].hour;
-        setReserved(day, hour);
+    for (let i = 0; i < reservations.length; i++) {
+        let day = reservations[i].day;
+        let hour = reservations[i].hour;
+        let username = reservations[i].username;
+        setReserved(day, hour, username);
     }
 }
 
-function setReserved(day, hour) {
-    for (var i = 0; i < hours.length; i++) {
-        if (hours[i].getAttribute('day') == day && hours[i].getAttribute('hour') == hour) {
-            hours[i].classList.add('reserved');
+function setReserved(day, hour, username) {
+    const rows = document.getElementById("timetable").rows;
+    const cell = rows[hour + 1].cells[day + 1];
+    cell.classList.add("reserved");
+    cell.innerHTML = username;
+    cell.onclick = function() {dialog("Czy na pewno chcesz anulować ten termin?", function() {sendCancel(day, hour)})};
+}
+
+function clearCalendar() {
+    const rows = document.getElementById("timetable").rows;
+    for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i].cells;
+        for (let j = 1; j < cells.length; j++) {
+            cells[j].classList.remove("reserved");
+            cells[j].innerHTML = '&nbsp;';
+            cells[j].onclick = function () {
+                dialog("Czy na pewno chcesz zarezerwować ten termin?", function () {
+                    sendReservation(j-1, i-1)
+                })
+            };
         }
     }
 }
 
-function clearCalendar() {
-    for (var i = 0; i < hours.length; i++) {
-        hours[i].classList.remove('reserved');
-    }
-}
-
-function reserve(day, hour) {
+function sendCancel(day, hour) {
     $.ajax({
-        url: '/reserve',
+        url: '/timetable/cancel',
         type: 'POST',
         data: {
             "day": day,
             "hour": hour
         },
         success: function (data) {
-            alert("Twoja wizyta została zarezerwowana");
+            showModal("Twoja wizyta została anulowana", true);
         },
         error: function (xhr, status, error) {
-            alert(JSON.parse(xhr.responseText).message);
+            showModal(JSON.parse(xhr.responseText).message, false);
+        }
+    })
+}
+
+function sendReservation(day, hour) {
+    $.ajax({
+        url: '/timetable/reserve',
+        type: 'POST',
+        data: {
+            "day": day,
+            "hour": hour
+        },
+        success: function (data) {
+            showModal("Twoja wizyta została zarezerwowana", true);
+        },
+        error: function (xhr, status, error) {
+            showModal(JSON.parse(xhr.responseText).message, false);
         }
     })
 }
 
 function loadTimetable() {
-    var xmlHttp = new XMLHttpRequest();
+    const xmlHttp = new XMLHttpRequest();
     xmlHttp.open("GET", "http://localhost:8080/timetable", false);
     xmlHttp.send(null);
     return printTimetable(JSON.parse(xmlHttp.responseText));
 }
 
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+function showModal(text, success) {
+    document.getElementById("modal").style.display = "block";
+    document.getElementById("message").innerHTML = text;
+    let bar = document.getElementById("bar");
+    bar.className = '';
+    if (success) {
+        bar.classList.add("success");
+    } else {
+        bar.classList.add("error");
+    }
+}
+
+function dialog(message, yesCallback) {
+    $('#confirm-modal').show();
+    $('#btnYes').unbind("click");
+    $('#confirm-message').text(message);
+    $('#btnYes').click(function () {
+        yesCallback();
+        $('#confirm-modal').hide();
+    });
+    $('#btnNo').click(function () {
+        $('#confirm-modal').hide();
+    });
+}

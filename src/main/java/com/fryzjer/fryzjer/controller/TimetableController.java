@@ -4,11 +4,10 @@ import com.fryzjer.fryzjer.dto.Reservation;
 import com.fryzjer.fryzjer.dto.Timetable;
 import com.fryzjer.fryzjer.dto.validator.ReservationValidator;
 import com.fryzjer.fryzjer.service.timetable.ITimetableService;
+import com.fryzjer.fryzjer.utils.AuthenticationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,14 +33,19 @@ public class TimetableController extends ExceptionHandlerController {
         return timetableService.getTimetable();
     }
 
-    @PostMapping("/reserve")
-    public void reserve(Reservation reservation) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            reservation.setUsername(authentication.getName());
-            reservationValidator.validateReservation(reservation);
-            timetableService.reserve(reservation);
-        }
+    @PostMapping("/timetable/reserve")
+    public void reserve(final Reservation reservation) {
+        reservation.setUsername(AuthenticationUtils.getLoggedUser());
+        reservationValidator.validateReservation(reservation);
+        timetableService.reserve(reservation);
+        messagingTemplate.convertAndSend("/topic/timetable", mapToTimetableResponse(timetableService.getTimetable()));
+    }
+
+    @PostMapping("/timetable/cancel")
+    public void cancel(final Reservation reservation) {
+        reservation.setUsername(AuthenticationUtils.getLoggedUser());
+        reservationValidator.validateCancelReservation(reservation);
+        timetableService.cancelReservation(reservation);
         messagingTemplate.convertAndSend("/topic/timetable", mapToTimetableResponse(timetableService.getTimetable()));
     }
 }
